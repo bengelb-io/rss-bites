@@ -1,0 +1,18 @@
+<label for="name">
+    Feed Name:
+</label>
+<input name="name" type="text" value="{{name}}">
+<label for="link">
+    RSS-Feed Link:
+</label>
+<input name="link" type="text" value="{{link}}">
+<label for="verified">
+    Valid RSS:
+</label>
+<input id="verified" name="verified" {{'checked' if checked else ''}} disabled type="checkbox">
+<button hx-post="/feeds/ping" hx-target="verified">
+    Verify RSS
+</button>
+<button type="submit">
+    Submit
+</button>

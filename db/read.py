@@ -1,11 +1,22 @@
-from db import Entry, Summary
-from peewee import Select
+from typing import Any, List, Callable, TypeVar, Protocol, Generic
+from sqlalchemy.orm import Session, create_session
+from db import engine, Feed
+from functools import wraps
 
-def latest_summaries(n: int = 10):
-    selection : Select= Entry.select(Entry, Summary)
-    return (
-        selection
-            .join(Summary)
-            .order_by()
-            .limit(n)
-        )
+
+T = TypeVar('T', covariant=True)
+
+class SessionReciever(Protocol, Generic[T]):
+    def __call__(self, session: Session, *args, **kwds: Any) -> T:
+        ...
+
+def session_provider(func: SessionReciever[T]) -> Callable[..., T]:
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        with create_session(bind=engine) as session:
+            return func(session, *args, **kwargs)
+    return wrapper
+
+@session_provider
+def get_feeds(session: Session) -> List[Feed]:
+    return session.query(Feed).all()

@@ -1,0 +1,15 @@
+<div>
+    {% for feed in feeds %}
+    <a href="/feeds/{{feed.id}}">
+        {{feed.name}}
+    </a>
+    {% endfor %}
+</div>
+<div>
+    <h3>
+        New RSS Feed
+    </h3>
+    <form hx-post="/feeds">
+        {% include 'feedform.html' %}
+    </form>
+</div>
