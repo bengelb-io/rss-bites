@@ -1,0 +1,12 @@
+<header>
+    <nav>
+        <a href="/">
+            Home
+        </a>
+        {% for feed in feeds %}
+        <a href="/{{feed.name}}">
+            {{feed.name}}
+        </a>
+        {% endfor %}
+    </nav>
+</header>
