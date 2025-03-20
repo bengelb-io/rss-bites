@@ -1,11 +1,13 @@
-from flask import Flask, render_template, request
-from typing import Any
+from flask import Flask, render_template, request, Blueprint
+from typing import Any, Optional
 from os import path, getcwd
 from urllib.parse import urlparse
 from db.read import get_feeds
+from db.create import new_feed
+import feedparser
 
 app = Flask(__name__)
-
+# admin = Blueprint("admin", __name__, url_prefix="/admin")
 
 def render_page(**context: Any):
     url_object = urlparse(request.url)
@@ -21,31 +23,48 @@ def render_page(**context: Any):
 
 @app.get("/")
 def index():
-    return render_page(feeds=[{"name": "All"}])
+    return render_page()
 
+
+class FeedForm:
+    id : Optional[int] = None
+    error: Optional[str] = None
+
+    def __init__(self, name: str = "", link = "", checked = False) -> None:
+        self.name, self.link, self.checked = name, link, checked
+        
+    @classmethod
+    def as_dict(cls):
+        return FeedForm.__dict__
 
 @app.get("/feeds/")
 def feeds():
     feeds = get_feeds()
-    class FeedForm:
-        name: str = ""
-        link: str = ""
-        checked: bool = False
-        @classmethod
-        def as_dict(cls):
-            return FeedForm.__dict__
-
-    return render_page(feeds=feeds, **dict(FeedForm.as_dict()))
 
 
-@app.post("/feeds/")
+    return render_page(feeds=feeds, **FeedForm().as_dict())
+
+
+@app.post("/feeds/submit")
 def handle_form_submit():
-    pass
+    return 
 
 
-@app.post("/feeds/ping")
-def ping_feed():
-    pass
+@app.post("/feeds/validate")
+def create_feed():
+    link = request.form["link"]
+    form = FeedForm(link=link)
+    try:
+        feed = new_feed(link)
+        form.id = feed
+    except Exception as e:
+        form.error = str(e)
+        print(form.error)
+        tmpl = render_template("feed/validate.html", **form.as_dict())
+        print(tmpl)
+        return render_template("feed/validate.html", **form.as_dict()), 422
+    return render_template("feed/validate.html", **form.as_dict()), 200
+
 
 if __name__ == "__main__":
     app.run(debug=True)
