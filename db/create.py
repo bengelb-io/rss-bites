@@ -1,23 +1,25 @@
-from sqlalchemy.orm import create_session
+from sqlalchemy.orm import create_session, Session
 import feedparser
-from db import engine, Feed, Entry, Ping
+from db import engine, session_provider, Feed, Entry, Ping
 from feedparser import FeedParserDict
 from datetime import datetime
+from dateutil.parser import parse
 
 
 def verify_feed(fpd: FeedParserDict):
     return fpd["bozo"] != 1
 
-def new_feed(link: str):
+
+@session_provider
+def new_feed(session: Session, link: str, name: str):
     rss = feedparser.parse(link)
     valid_rss = verify_feed(rss)
     if valid_rss:
-        with create_session(bind=engine) as session:
-            feed = Feed(link=link, entries=rss_entries(rss), pings=[Ping()])
-            session.add(feed)
-            session.commit()
+        ttl = rss["channel"]["ttl"]
+        feed = Feed(name=name, link=link, ttl=ttl if ttl else 60, entries=rss_entries(session, rss), pings=[Ping()])
+        session.add(feed)
+        session.commit()
         return feed
-    raise Exception("RSS could not be parsed.")
 
 
 def parse_rfc(date_string: str):
@@ -25,15 +27,16 @@ def parse_rfc(date_string: str):
     return datetime.strptime(date_string, date_format)
 
 
-def rss_entries(fpd: FeedParserDict):
-    assert type(fpd["items"]) is list
-    items = fpd["items"]
+def rss_entries(session: Session, rss: FeedParserDict):
+    assert type(rss["items"]) is list
+    items = rss["items"]
     return [
-        Entry(
+        session.query(Entry).filter(Entry.guid == item["id"]).one_or_none()
+        or Entry(
             title=item["title"],
             link=item["link"],
             description=item["summary"],
-            published=parse_rfc(item["published"]),  # type: ignore
+            published=parse(item["published"]),  # type: ignore
             guid=item["id"],
         )
         for item in items

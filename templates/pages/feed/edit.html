@@ -1,0 +1,9 @@
+<form hx-put="/feed/{{feed.id}}">
+    <fieldset>
+        Name: <input type="text" name="name" id="name" value="{{ feed.name if feed.name else '' }}">
+        <br>
+        <button type="submit">
+            Submit
+        </button>
+    </fieldset>
+</form>

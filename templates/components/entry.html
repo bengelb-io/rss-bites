@@ -1,0 +1,11 @@
+<fieldset>
+    {% for entry in entries %}
+    <span>
+        #{{entry.id}}
+    </span>
+    <a href="/entry/{{entry.id}}">
+        {{entry.title}}
+    </a>
+    <br>
+    {% endfor %}
+</fieldset>

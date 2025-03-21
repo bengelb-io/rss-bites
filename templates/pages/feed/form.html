@@ -1,0 +1,19 @@
+<form hx-post="/feed" hx-target="#form">
+    <label>
+        New Feed:
+    </label>
+    <fieldset>
+        Name: <input required type="text" name="name" id="name" placeholder="My Science Feed">
+        <br>
+        RSS Link: <input required type="url" name="link", id="link" placeholder="www.example.com/feed.xml">
+        <br>
+        <button type="submit">
+            Submit
+        </button>
+    </fieldset>
+    {% if error %}
+        <p style="color: red;">
+            {{error}}
+        </p>
+    {% endif %}
+</form>

@@ -7,10 +7,15 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     UniqueConstraint,
+    event
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from datetime import datetime
+
+from typing import Any, Callable, TypeVar, Protocol, Generic
+from sqlalchemy.orm import Session, create_session
+from functools import wraps
 
 # Create engine and base
 engine = create_engine("sqlite:///bite.db")
@@ -34,7 +39,11 @@ class Entry(Base):
 
     # Relationships
     summaries = relationship("Summary", back_populates="entry")
-    feeds = relationship("Feed", secondary="feed_entries", back_populates="entries")
+    feeds = relationship(
+        "Feed",
+        secondary="feed_entries",
+        back_populates="entries",
+    )
 
 
 class Summary(Base):
@@ -55,11 +64,15 @@ class Feed(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(255), unique=True)
     link = Column(Text, unique=True)
-    ping_interval = Column(Integer, default=3600)
+    ttl = Column(Integer, default=60)  # In minutes
     created_at = Column(DateTime, default=datetime.now)
 
     # Relationships
-    entries = relationship("Entry", secondary="feed_entries", back_populates="feeds")
+    entries = relationship(
+        "Entry",
+        secondary="feed_entries",
+        back_populates="feeds",
+    )
     pings = relationship("Ping", back_populates="feed")
 
 
@@ -87,3 +100,25 @@ class Ping(Base):
 
 # Create all tables
 Base.metadata.create_all(engine)
+
+
+@event.listens_for(engine, "connect")
+def set_sqlite_pragma(dbapi_connection, connection_record):
+    cursor = dbapi_connection.cursor()
+    cursor.execute("PRAGMA foreign_keys=ON;")
+    cursor.close()
+
+T = TypeVar("T", covariant=True)
+
+
+class SessionReciever(Protocol, Generic[T]):
+    def __call__(self, session: Session, *args, **kwds: Any) -> T: ...
+
+
+def session_provider(func: SessionReciever[T]) -> Callable[..., T]:
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        with create_session(bind=engine) as session:
+            return func(session, *args, **kwargs)
+
+    return wrapper
