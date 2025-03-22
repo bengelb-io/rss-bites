@@ -8,4 +8,9 @@
     </a>
     <br>
     {% endfor %}
+    {% for page in pages %}
+    <a href="?page={{page}}">
+        {{ page }}
+    </a>
+    {% endfor %}
 </fieldset>
