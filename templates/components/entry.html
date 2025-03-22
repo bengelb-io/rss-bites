@@ -1,0 +1,16 @@
+<fieldset>
+    {% for entry in entries %}
+    <span>
+        #{{entry.id}}
+    </span>
+    <a href="/entry/{{entry.id}}">
+        {{entry.title}}
+    </a>
+    <br>
+    {% endfor %}
+    {% for page in pages %}
+    <a href="?page={{page}}">
+        {{ page }}
+    </a>
+    {% endfor %}
+</fieldset>

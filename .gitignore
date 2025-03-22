@@ -1,6 +1,8 @@
 *.db
 .vscode/
+venv
 .venv
 __pycache__
 config.yml
 config.yaml
+.env

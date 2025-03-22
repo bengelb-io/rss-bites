@@ -1,0 +1,32 @@
+<div>
+    {% for feed in feeds %}
+    <a href="/feeds/{{feed.id}}">
+        {{feed.name}}
+    </a>
+    {% endfor %}
+</div>
+<div>
+    <h3>
+        New RSS Feed
+    </h3>
+    <section>
+        {% include 'feed/validate.html' %}
+    </section>
+    {% if id %}
+    <section>
+        <form hx-put="feeds/{{id}}">
+            <label for="name">
+                Feed Name:
+            </label>
+            <input name="name" type="text" value="{{name}}">
+            <label for="ping_interval">
+                Ping Interval
+            </label>
+            <input name="ping_interval" type="number" placeholder="120" min="60"> seconds
+        </form>
+    </section>
+    {% else %}
+    <p>Pending validation of RSS</p>
+    {% endif %}
+
+</div>

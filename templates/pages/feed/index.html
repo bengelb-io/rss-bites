@@ -1,0 +1,22 @@
+<h3>
+    Your Active Feeds
+</h3>
+
+{% for feed in feeds %}
+<span>
+    #{{feed.id}}:
+</span>
+<a href="/feed/{{feed.id}}">
+    {{feed.name}}
+</a>
+<br>
+{% endfor %}
+
+<section>
+
+<div id="form">
+    <button hx-get="/feed/form" hx-target="#form">
+        New Feed
+    </button>
+</div>
+</section>

@@ -1,0 +1,36 @@
+<h3>
+    Feed: {{ feed.name }}
+</h3>
+
+<label>
+    Entries:
+</label>
+{% include 'components/entry.html' %}
+
+
+<label>Details:</label>
+<fieldset>
+    <label for="name">
+        Name: <span><b>{{ feed.name }}</b></span>
+    </label>
+    <label for="link">
+        RSS Link:
+        <a href="{{feed.link}}">{{feed.link}}</a>
+    </label>
+    <label for="ttl">
+        Update Interval: <span><b>{{ feed.ttl }}</b> Minutes</span>
+    </label>
+    <br>
+    <label for="delete">
+        <button hx-delete="/feed/{{feed.id}}">
+            Delete
+        </button>
+    </label>
+</fieldset>
+
+
+<label>
+    Edit:
+</label>
+{% include 'pages/feed/edit.html' %}
+
