@@ -1,0 +1,21 @@
+{% if entry.summaries|length == 0 %}
+<div>
+    <p>No current summaries:</p>
+    <button hx-post="/summary">
+        New Summary
+    </button>
+</div>
+{% else %}
+<div>
+    {% include 'components/content.html' %}
+    {% for summary in summaries[1:] %}
+    <details>
+        <summary>
+            {{summary.name}}
+        </summary>
+        {{summary.content}}
+    </details>
+    <p>Created At: {{summary.created_at}}</p>
+    {% endfor %}
+</div>
+{% endif %}

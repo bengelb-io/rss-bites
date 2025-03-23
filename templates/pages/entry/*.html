@@ -1,0 +1,44 @@
+
+<h3>{{entry.title}}</h3>
+<section>
+    <h4>
+        Summaries:
+    </h4>
+    {% include 'components/summary.html'%}
+</section>
+<section>
+  <dl>
+      <dt>
+          Description
+        </dt>
+        <dd>
+            {{entry.description}}
+        </dd>
+        <dt>
+            Link
+        </dt>
+        <dd>
+            <a href="{{entry.link}}">{{entry.link}}</a>
+        </dd>
+        <dt>
+            Published
+        </dt>
+        <dd>
+            {{entry.published}}
+        </dd>
+        <dt>
+            Related Feeds:
+        </dt>
+        <dd>
+            {% for feed in entry.feeds %}
+            <a href="/feed/{{feed.id}}"> {{feed.name}} </a>&nbsp;
+            {% endfor %}
+        </dd>
+    </dl>
+    <dt>
+        Collected
+    </dt>
+    <dd>
+        {{entry.collected}}
+    </dd>
+</section>

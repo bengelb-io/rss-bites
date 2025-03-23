@@ -37,3 +37,30 @@ def get_feed_with_entries(
 @session_provider
 def get_recent_summaries(session: Session):
     return session.query(Summary).options(joinedload(Summary.entry)).limit(10).all()
+
+@session_provider
+def get_entry_at_id(session: Session, id: int):
+    return session.query(Entry).options(joinedload(Entry.summaries), joinedload(Entry.feeds)).filter(Entry.id == id).one_or_none()
+
+
+def paginated_feed_at_id(session: Session, id: int, page: int, n: int = 10) -> tuple[Optional[Feed], list[Entry]]:
+    offset = page * n
+    feed = (
+        session.query(Feed)
+        .filter(Feed.id == id)
+        .one_or_none()
+    )
+    if not feed:
+        return None, []
+    entries = (
+        session.query(Entry)
+        .join(FeedEntries, FeedEntries.entry_id == Entry.id)
+        .filter(FeedEntries.feed_id == feed.id)
+        .offset(offset)
+        .limit(n)
+        .all()
+    )
+    return feed, entries
+
+def total_entries_in_feed(session: Session, feed: Feed):
+    return session.query(Entry).join(Entry.feeds).filter(Feed.id == feed.id).count()

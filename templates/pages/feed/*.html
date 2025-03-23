@@ -3,9 +3,9 @@
 </h3>
 
 <label>
-    Entries:
+    Entries: {% if ping %} <span style="color: aquamarine;">Recently Updated: {{ping.timestamp}} </span> {% endif %}
 </label>
-{% include 'components/entry.html' %}
+{% include 'components/entrylist.html' %}
 
 
 <label>Details:</label>
